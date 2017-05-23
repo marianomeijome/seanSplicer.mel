@@ -1,0 +1,81 @@
+//Sean Splicer MEL script for Maya
+//CREATED BY
+//Mariano Meijome
+//Natalia Meijome
+
+
+//implement feature to move merged splices to center of OBJ
+
+// create a GUI
+			window -menuBar true -width 100;
+			
+			// add a help menu
+			menu -label "Help" -helpMenu true;
+			
+				menuItem -label "About Application...";
+				
+			// create a pane layout to holds the info
+			paneLayout -configuration "horizontal2";
+
+				// create 4 scroll fields
+				scrollField -wordWrap true 
+					-text "Select object you wish to chop up. %Values are  relative to object size." -editable false;
+				
+			// add the other controls
+			columnLayout;
+			     floatSliderGrp -label "Chunk Height %" -field true -pre 2
+                  -minValue 0.05 -maxValue 100
+                  -value 2
+                  chunkSlider;
+                  floatSliderGrp -label "Gap Height %" -field true 
+                  -minValue 1 -maxValue 99
+                  -value 1
+                  gapSlider;
+                  intSliderGrp -label "Cut width %" -field true 
+                  -minValue 1 -maxValue 100
+                  -value 100
+                  widthSlider;
+				button -command ("seanSplicer()") -label "chop it up fam";
+				
+			showWindow;
+			
+			
+			
+proc seanSplicer(){
+    DeleteHistory;
+    //store name of mesh to splice
+    string $OG[] = `ls -sl`;
+    float $minY =  `getAttr ($OG[0] + ".boundingBoxMinY")`;
+    float $maxY = `getAttr ($OG[0] + ".boundingBoxMaxY")`;
+    float $objHeight = $maxY - $minY;
+    
+    float $objWidth = `getAttr ($OG[0] + ".boundingBoxMaxX")` - `getAttr ($OG[0] + ".boundingBoxMinX")`;
+    float $depth = `getAttr ($OG[0] + ".boundingBoxMaxZ")` - `getAttr ($OG[0] + ".boundingBoxMinZ")` + 1;
+    //c is the gap between cubes, i is number of cubes
+    int $i;
+    float $chunkHeight = (`floatSliderGrp -q -value chunkSlider` * 0.005) * $objHeight;
+    float $gapHeight = (`floatSliderGrp -q -value gapSlider` * 0.005) * $objHeight;
+    float $userWidth = ((`intSliderGrp -q -value widthSlider` + 1) * 0.01) * $objWidth;
+    float $start = $minY;
+    
+    for ($i = 0; $i < ($objHeight / ($chunkHeight + $gapHeight) + $gapHeight); $i++) {
+        polyCube -w $userWidth -h $gapHeight -d $depth -sx 1 -sy 1 -sz 1 -ax 0 1 0 -cuv 4 -ch 1 ;
+        rename spliceCube[$i]; 
+        move -r -os -wd 0 $start 0;
+        $start += $chunkHeight + $gapHeight;
+    }
+    string $myCubes[] = `ls -type shape "spliceCube*"`; 
+    
+    select $myCubes;
+    
+    //merge all cubes
+    string $merged = "mergedSplice";
+    polyUnite -ch 1 -mergeUVSets 1 -centerPivot -name $merged;
+    DeleteHistory;
+    
+    select -r $OG[0];
+    select -tgl $merged;
+    PolygonBooleanDifference;
+    
+    DeleteHistory;
+}
