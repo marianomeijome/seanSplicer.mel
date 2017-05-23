@@ -43,6 +43,7 @@
 			
 proc seanSplicer(){
     DeleteHistory;
+    makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 -pn 1;
     //store name of mesh to splice
     string $OG[] = `ls -sl`;
     float $minY =  `getAttr ($OG[0] + ".boundingBoxMinY")`;
@@ -57,13 +58,17 @@ proc seanSplicer(){
     float $gapHeight = (`floatSliderGrp -q -value gapSlider` * 0.005) * $objHeight;
     float $userWidth = ((`intSliderGrp -q -value widthSlider`) * 0.01) * $objWidth;
     float $startY = $minY;
+    
+    //center pivot of object first
+    xform -cp $OG[0];
     float $centerX = `objectCenter -x $OG[0]`;
+    float $centerZ = `objectCenter -z $OG[0]`;
 
     
     for ($i = 0; $i < ($objHeight / ($chunkHeight + $gapHeight) + $gapHeight); $i++) {
         polyCube -w $userWidth -h $gapHeight -d $depth -sx 1 -sy 1 -sz 1 -ax 0 1 0 -cuv 4 -ch 1 ;
         rename spliceCube[$i]; 
-        move -r -os -wd $centerX $startY 0;
+        move -r -os -wd $centerX $startY $centerZ;
         $startY += $chunkHeight + $gapHeight;
     }
     string $myCubes[] = `ls -type shape "spliceCube*"`; 
