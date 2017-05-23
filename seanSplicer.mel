@@ -14,8 +14,11 @@
 			
 				menuItem -label "About Application...";
 				
+				
+				
 			// create a pane layout to holds the info
 			paneLayout -configuration "horizontal2";
+			
 
 				// create 4 scroll fields
 				scrollField -wordWrap true 
