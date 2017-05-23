@@ -7,7 +7,7 @@
 //implement feature to move merged splices to center of OBJ
 
 // create a GUI
-			window -menuBar true -width 100;
+			window -title "Sean Splicer" -menuBar true -width 100;
 			
 			// add a help menu
 			menu -label "Help" -helpMenu true;
