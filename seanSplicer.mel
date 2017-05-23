@@ -51,18 +51,20 @@ proc seanSplicer(){
     
     float $objWidth = `getAttr ($OG[0] + ".boundingBoxMaxX")` - `getAttr ($OG[0] + ".boundingBoxMinX")`;
     float $depth = `getAttr ($OG[0] + ".boundingBoxMaxZ")` - `getAttr ($OG[0] + ".boundingBoxMinZ")` + 1;
-    //c is the gap between cubes, i is number of cubes
+    
     int $i;
     float $chunkHeight = (`floatSliderGrp -q -value chunkSlider` * 0.005) * $objHeight;
     float $gapHeight = (`floatSliderGrp -q -value gapSlider` * 0.005) * $objHeight;
-    float $userWidth = ((`intSliderGrp -q -value widthSlider` + 1) * 0.01) * $objWidth;
-    float $start = $minY;
+    float $userWidth = ((`intSliderGrp -q -value widthSlider`) * 0.01) * $objWidth;
+    float $startY = $minY;
+    float $centerX = `objectCenter -x $OG[0]`;
+
     
     for ($i = 0; $i < ($objHeight / ($chunkHeight + $gapHeight) + $gapHeight); $i++) {
         polyCube -w $userWidth -h $gapHeight -d $depth -sx 1 -sy 1 -sz 1 -ax 0 1 0 -cuv 4 -ch 1 ;
         rename spliceCube[$i]; 
-        move -r -os -wd 0 $start 0;
-        $start += $chunkHeight + $gapHeight;
+        move -r -os -wd $centerX $startY 0;
+        $startY += $chunkHeight + $gapHeight;
     }
     string $myCubes[] = `ls -type shape "spliceCube*"`; 
     
@@ -70,7 +72,7 @@ proc seanSplicer(){
     
     //merge all cubes
     string $merged = "mergedSplice";
-    polyUnite -ch 1 -mergeUVSets 1 -centerPivot -name $merged;
+    polyUnite -ch 1 -mergeUVSets 1 -name $merged;
     DeleteHistory;
     
     select -r $OG[0];
