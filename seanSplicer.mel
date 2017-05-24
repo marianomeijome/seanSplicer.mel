@@ -38,6 +38,10 @@
                   -minValue 1 -maxValue 100
                   -value 100
                   widthSlider;
+                  intSliderGrp -label "Cut depth %" -field true 
+                  -minValue 1 -maxValue 100
+                  -value 100
+                  depthSlider;
 				button -command ("seanSplicer()") -label "chop it up fam";
 				
 			showWindow;
@@ -57,9 +61,10 @@ proc seanSplicer(){
     float $depth = `getAttr ($OG[0] + ".boundingBoxMaxZ")` - `getAttr ($OG[0] + ".boundingBoxMinZ")` + 1;
     
     int $i;
-    float $chunkHeight = (`floatSliderGrp -q -value chunkSlider` * 0.005) * $objHeight;
-    float $gapHeight = (`floatSliderGrp -q -value gapSlider` * 0.005) * $objHeight;
+    float $chunkHeight = (`floatSliderGrp -q -value chunkSlider` * 0.01) * $objHeight;
+    float $gapHeight = (`floatSliderGrp -q -value gapSlider` * 0.01) * $objHeight;
     float $userWidth = ((`intSliderGrp -q -value widthSlider`) * 0.01) * $objWidth;
+    float $userDepth = ((`intSliderGrp -q -value depthSlider`) * 0.01) * $depth;
     float $startY = $minY;
     
     //center pivot of object first
@@ -77,6 +82,11 @@ proc seanSplicer(){
     string $myCubes[] = `ls -type shape "spliceCube*"`; 
     
     select $myCubes;
+    
+    if(`intSliderGrp -q -value depthSlider` != 100){
+       move -r -os -wd 0 0 $userDepth;
+
+    }
     
     //merge all cubes
     string $merged = "mergedSplice";
