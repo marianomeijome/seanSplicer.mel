@@ -64,7 +64,7 @@ proc seanSplicer(){
     float $chunkHeight = (`floatSliderGrp -q -value chunkSlider` * 0.01) * $objHeight;
     float $gapHeight = (`floatSliderGrp -q -value gapSlider` * 0.01) * $objHeight;
     float $userWidth = ((`intSliderGrp -q -value widthSlider`) * 0.01) * $objWidth;
-    float $userDepth = ((`intSliderGrp -q -value depthSlider`) * 0.01) * $depth;
+    float $userDepth = (( 1 - (`intSliderGrp -q -value depthSlider`)) * 0.01) * $depth;
     float $startY = $minY;
     
     //center pivot of object first
@@ -84,7 +84,7 @@ proc seanSplicer(){
     select $myCubes;
     
     if(`intSliderGrp -q -value depthSlider` != 100){
-       move -r -os -wd 0 0 $userDepth;
+       move -r -os -wd 0 0 ($depth + $userDepth);
 
     }
     
