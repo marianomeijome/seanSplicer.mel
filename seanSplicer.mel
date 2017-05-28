@@ -100,14 +100,15 @@ proc seanSplicer(){
     DeleteHistory;
     
     //align cubes to center of object
-    select -r $merged ;
+    select $merged ;
     select -tgl $OG[0] ;
     align -atl -x Mid -y Mid;
     
-    select -r $OG[0];
+    select $OG[0];
     select -tgl $merged; 
        
     DeleteHistory;
     PolygonBooleanDifference;
+    DeleteHistory;
 
 }
