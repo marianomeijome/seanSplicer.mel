@@ -4,7 +4,6 @@
 //Natalia Meijome
 
 
-//implement feature to move merged splices to center of OBJ
 
 // create a GUI
 			window -title "Sean Splicer" -menuBar true -width 100;
@@ -100,6 +99,7 @@ proc seanSplicer(){
     polyUnite -ch 1 -mergeUVSets 1 -name $merged;
     DeleteHistory;
     
+    //align cubes to center of object
     select -r $merged ;
     select -tgl $OG[0] ;
     align -atl -x Mid -y Mid;
