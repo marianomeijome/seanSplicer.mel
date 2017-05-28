@@ -49,10 +49,16 @@
 			
 			
 proc seanSplicer(){
-    DeleteHistory;
-    makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 -pn 1;
+    
     //store name of mesh to splice
     string $OG[] = `ls -sl`;
+    select -r $OG[0];
+    if(size(listRelatives("-parent"))){
+	    parent -w;
+    }
+    DeleteHistory;
+    makeIdentity -apply true -t 1 -r 1 -s 1 -n 0 -pn 1;
+    
     float $minY =  `getAttr ($OG[0] + ".boundingBoxMinY")`;
     float $maxY = `getAttr ($OG[0] + ".boundingBoxMaxY")`;
     float $objHeight = $maxY - $minY;
@@ -63,8 +69,8 @@ proc seanSplicer(){
     int $i;
     float $chunkHeight = (`floatSliderGrp -q -value chunkSlider` * 0.01) * $objHeight;
     float $gapHeight = (`floatSliderGrp -q -value gapSlider` * 0.01) * $objHeight;
-    float $userWidth = ((`intSliderGrp -q -value widthSlider`) * 0.01) * $objWidth;
-    float $userDepth = (( 1 - (`intSliderGrp -q -value depthSlider`)) * 0.01) * $depth;
+    float $gapWidth = ((`intSliderGrp -q -value widthSlider`) * 0.01) * $objWidth;
+    float $gapDepth = (( 1 - (`intSliderGrp -q -value depthSlider`)) * 0.01) * $depth;
     float $startY = $minY;
     
     //center pivot of object first
@@ -73,8 +79,8 @@ proc seanSplicer(){
     float $centerZ = `objectCenter -z $OG[0]`;
 
     
-    for ($i = 0; $i < ($objHeight / ($chunkHeight + $gapHeight) + $gapHeight); $i++) {
-        polyCube -w $userWidth -h $gapHeight -d $depth -sx 1 -sy 1 -sz 1 -ax 0 1 0 -cuv 4 -ch 1 ;
+    for ($i = 0; $i < ($objHeight / ($chunkHeight + $gapHeight)); $i++) {
+        polyCube -w $gapWidth -h $gapHeight -d $depth -sx 1 -sy 1 -sz 1 -ax 0 1 0 -cuv 4 -ch 1 ;
         rename spliceCube[$i]; 
         move -r -os -wd $centerX $startY $centerZ;
         $startY += $chunkHeight + $gapHeight;
@@ -83,8 +89,9 @@ proc seanSplicer(){
     
     select $myCubes;
     
+    
     if(`intSliderGrp -q -value depthSlider` != 100){
-       move -r -os -wd 0 0 ($depth + $userDepth);
+       move -r -os -wd 0 0 ($depth + $gapDepth);
 
     }
     
@@ -93,9 +100,14 @@ proc seanSplicer(){
     polyUnite -ch 1 -mergeUVSets 1 -name $merged;
     DeleteHistory;
     
-    select -r $OG[0];
-    select -tgl $merged;
-    PolygonBooleanDifference;
+    select -r $merged ;
+    select -tgl $OG[0] ;
+    align -atl -x Mid -y Mid;
     
+    select -r $OG[0];
+    select -tgl $merged; 
+       
     DeleteHistory;
+    PolygonBooleanDifference;
+
 }
